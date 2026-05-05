@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Monaco editor container must fill its parent */
+.monaco-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* WaveDrom SVG responsive scaling */
+.preview-svg svg {
+  max-width: 100%;
+  height: auto;
+}
