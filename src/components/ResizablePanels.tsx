@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function ResizablePanels({ left, center, right, isDark }: Props) {
-  const [leftW, setLeftW] = useState(380)
+  const [leftW, setLeftW] = useState(520)
   const [rightW, setRightW] = useState(360)
   const containerRef = useRef<HTMLDivElement>(null)
   const dragging = useRef<'left' | 'right' | null>(null)

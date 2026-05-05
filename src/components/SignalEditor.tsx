@@ -160,6 +160,12 @@ export default function SignalEditor({
     onChange({ ...waveJson, signal: [...waveJson.signal, s] })
   }
 
+  function addClock() {
+    const wave = cycleCount > 1 ? 'p' + '.'.repeat(cycleCount - 1) : 'p'
+    const s: Signal = { name: 'clk', wave }
+    onChange({ ...waveJson, signal: [...waveJson.signal, s] })
+  }
+
   // ── Context menu opener ────────────────────────────────────
   const openContextMenu = useCallback((
     signalId: string, cellIdx: number | null, x: number, y: number,
@@ -257,23 +263,24 @@ export default function SignalEditor({
 
   const panel  = isDark ? 'bg-slate-800 text-slate-100' : 'bg-white text-gray-900'
   const header = isDark ? 'bg-slate-900 border-slate-700' : 'bg-gray-50 border-gray-200'
-  const footer = isDark ? 'border-slate-700' : 'border-gray-200'
   const lbl    = isDark ? 'text-slate-400' : 'text-gray-500'
   const btn    = isDark ? 'bg-slate-700 hover:bg-slate-600 text-slate-300' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
   const cnt    = isDark ? 'text-slate-200' : 'text-gray-800'
   const addBtn = isDark ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-500 hover:bg-blue-600'
+  const clkBtn = isDark ? 'bg-violet-700 hover:bg-violet-600' : 'bg-violet-500 hover:bg-violet-600'
 
   return (
     <div className={`flex flex-col h-full ${panel}`}>
       {/* Panel header */}
-      <div className={`flex items-center justify-between px-3 py-2 border-b ${header} flex-shrink-0`}>
-        <span className={`text-xs font-semibold uppercase tracking-wider ${lbl}`}>Signals</span>
-        <div className="flex items-center gap-2">
-          <span className={`text-xs ${lbl}`}>Cycles:</span>
-          <button onClick={() => onCycleCountChange(Math.max(1, cycleCount - 1))} className={`w-5 h-5 rounded text-xs flex items-center justify-center ${btn}`}>−</button>
-          <span className={`text-sm w-5 text-center ${cnt}`}>{cycleCount}</span>
-          <button onClick={() => onCycleCountChange(Math.min(64, cycleCount + 1))} className={`w-5 h-5 rounded text-xs flex items-center justify-center ${btn}`}>+</button>
-        </div>
+      <div className={`flex items-center gap-2 px-3 py-2 border-b ${header} flex-shrink-0`}>
+        <span className={`text-xs font-semibold uppercase tracking-wider ${lbl} flex-shrink-0`}>Signals</span>
+        <button onClick={addSignal} className={`px-2 py-0.5 rounded text-white text-xs font-medium transition-colors flex-shrink-0 ${addBtn}`}>+ Signal</button>
+        <button onClick={addClock} className={`px-2 py-0.5 rounded text-white text-xs font-medium transition-colors flex-shrink-0 ${clkBtn}`}>+ Clock</button>
+        <div className="flex-1" />
+        <span className={`text-xs ${lbl} flex-shrink-0`}>Cycles:</span>
+        <button onClick={() => onCycleCountChange(Math.max(1, cycleCount - 1))} className={`w-5 h-5 rounded text-xs flex items-center justify-center ${btn}`}>−</button>
+        <span className={`text-sm w-5 text-center ${cnt}`}>{cycleCount}</span>
+        <button onClick={() => onCycleCountChange(Math.min(64, cycleCount + 1))} className={`w-5 h-5 rounded text-xs flex items-center justify-center ${btn}`}>+</button>
       </div>
 
       {/* Scrollable signal list (single scroll container for timescale + rows) */}
@@ -297,15 +304,8 @@ export default function SignalEditor({
         </DndContext>
 
         {waveJson.signal.length === 0 && (
-          <div className={`text-center text-sm py-10 ${lbl}`}>No signals. Add one below.</div>
+          <div className={`text-center text-sm py-10 ${lbl}`}>No signals. Add one above.</div>
         )}
-      </div>
-
-      {/* Footer */}
-      <div className={`px-3 py-2 border-t ${footer} flex-shrink-0`}>
-        <button onClick={addSignal} className={`w-full py-1.5 rounded text-white text-sm font-medium transition-colors ${addBtn}`}>
-          + Add Signal
-        </button>
       </div>
 
       {/* Context menu */}

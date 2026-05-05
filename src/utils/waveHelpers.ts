@@ -21,17 +21,18 @@ export function resolveStates(wave: string): CellState[] {
 // Wave chars 2-9 are colored variants of the bus/vector state
 export const VECTOR_CHARS: CellState[] = ['=', '3', '4', '5', '6', '7', '8', '9']
 
-// Actual fill colors used by wavedrom's default skin for each vector char
+// Actual fill colors used by wavedrom's default skin for each vector char.
+// vvv-2 (=,2) → s7=#fff  vvv-3 → s8=#ffffb4  vvv-4 → s9=#ffe0b9 …
 export const VECTOR_HEX: Record<string, string> = {
-  '=': '#ffffb4',
-  '2': '#ffffb4',
-  '3': '#ffe0b9',
-  '4': '#b9e0ff',
-  '5': '#ccfdfe',
-  '6': '#cdfdc5',
-  '7': '#f0c1fb',
-  '8': '#f5c2c0',
-  '9': '#ffffff',
+  '=': '#ffffff',
+  '2': '#ffffff',
+  '3': '#ffffb4',
+  '4': '#ffe0b9',
+  '5': '#b9e0ff',
+  '6': '#ccfdfe',
+  '7': '#cdfdc5',
+  '8': '#f0c1fb',
+  '9': '#f5c2c0',
 }
 
 export function isVectorCell(state: CellState): boolean {
