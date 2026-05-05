@@ -6,11 +6,7 @@ An interactive, browser-based GUI editor for [WaveDrom](https://wavedrom.com) ti
 
 ## Screenshots
 
-> _Run `npm run dev` and capture a screenshot of your diagrams here._
-
-| Signal Editor | Live Preview |
-|---|---|
-| _(screenshot)_ | _(screenshot)_ |
+![Preview](docs/preview.png)
 
 ---
 
