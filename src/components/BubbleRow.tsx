@@ -1,5 +1,5 @@
 import { CELL_W } from './WaveformRenderer'
-import { isVectorCell, cycleVectorColor, VECTOR_HEX } from '../utils/waveHelpers'
+import { isVectorCell, VECTOR_HEX } from '../utils/waveHelpers'
 import type { CellState } from '../types'
 
 const BUBBLE_H = 20
@@ -34,8 +34,6 @@ export default function BubbleRow({ wave, isDark, onColorCycle, onCellRightClick
           }
           return false
         })()
-
-        const x = i * CELL_W
 
         if (resolvedIsBus) {
           // Find the resolved bus char for this position (walk back through dots)

@@ -11,7 +11,7 @@ export function resolveStates(wave: string): CellState[] {
   const result: CellState[] = []
   let prev: CellState = '0'
   for (const ch of wave) {
-    const resolved = ch === '.' ? prev : ch as CellState
+    const resolved: CellState = ch === '.' ? prev : ch as CellState
     prev = resolved
     result.push(resolved)
   }

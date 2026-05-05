@@ -1,12 +1,8 @@
 import { useEffect, useRef } from 'react'
 
-export interface ContextMenuItem {
-  label: string
-  onClick?: () => void
-  separator?: boolean
-  danger?: boolean
-  disabled?: boolean
-}
+export type ContextMenuItem =
+  | { separator: true }
+  | { separator?: false; label: string; onClick?: () => void; danger?: boolean; disabled?: boolean }
 
 interface Props {
   x: number

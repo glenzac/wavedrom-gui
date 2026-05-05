@@ -92,7 +92,6 @@ function insertCycleAt(signal: Signal, idx: number): Signal {
 
 function deleteCycleAt(signal: Signal, idx: number): Signal {
   const chars   = signal.wave.split('')
-  const cells   = chars as CellState[]
   const dataMap = getDataMap(signal.wave, signal.data)
 
   chars.splice(idx, 1)
