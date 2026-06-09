@@ -1,5 +1,5 @@
 import { CELL_W } from './WaveformRenderer'
-import { isVectorCell, VECTOR_HEX } from '../utils/waveHelpers'
+import { isVectorCell, VECTOR_HEX, resolveStates } from '../utils/waveHelpers'
 import type { CellState } from '../types'
 
 const BUBBLE_H = 20
@@ -19,30 +19,17 @@ interface Props {
 }
 
 export default function BubbleRow({ wave, isDark, onColorCycle, onCellRightClick }: Props) {
-  const n = wave.length
+  const n        = wave.length
+  const resolved = resolveStates(wave)
 
   return (
     <div className="flex" style={{ height: BUBBLE_H }}>
       {Array.from({ length: n }, (_, i) => {
-        const ch = wave[i] as CellState
-        // Resolve '.' for bus check: look back for most recent bus char
-        const resolvedIsBus = (() => {
-          let j = i
-          while (j >= 0) {
-            if (wave[j] !== '.') return isVectorCell(wave[j] as CellState)
-            j--
-          }
-          return false
-        })()
+        const ch          = wave[i] as CellState
+        const resolvedChar = resolved[i]
+        const resolvedIsBus = isVectorCell(resolvedChar)
 
         if (resolvedIsBus) {
-          // Find the resolved bus char for this position (walk back through dots)
-          let resolvedChar: CellState = ch
-          if (ch === '.') {
-            let j = i - 1
-            while (j >= 0 && wave[j] === '.') j--
-            if (j >= 0) resolvedChar = wave[j] as CellState
-          }
           const color = VECTOR_HEX[resolvedChar] ?? VECTOR_HEX['=']
           return (
             <div

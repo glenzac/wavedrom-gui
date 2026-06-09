@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react'
-import { isVectorCell, isClockState, resolveStates, VECTOR_HEX } from '../utils/waveHelpers'
-import type { CellState } from '../types'
+import { useId, type ReactNode } from 'react'
+import { isVectorCell, isClockState, resolveStates, VECTOR_HEX, getDataMap } from '../utils/waveHelpers'
 
 export const CELL_W = 40
 export const WAVE_H = 40
@@ -29,6 +28,7 @@ interface Props {
 }
 
 export default function WaveformRenderer({ wave, data, isDark, onCellClick, onCellRightClick }: Props) {
+  const uid      = useId()
   const n        = wave.length
   const resolved = resolveStates(wave)
   const totalW   = n * CELL_W
@@ -38,17 +38,9 @@ export default function WaveformRenderer({ wave, data, isDark, onCellClick, onCe
   const txtCol  = isDark ? '#f1f5f9' : '#1e293b'
   const xStroke = isDark ? '#f87171' : '#dc2626'
 
-  const hatchId = isDark ? 'xhatch-d' : 'xhatch-l'
+  const hatchId = isDark ? `xhatch-d${uid}` : `xhatch-l${uid}`
 
-  // data-label map: explicit bus cell index → label
-  const dataLabel: Record<number, string> = {}
-  let di = 0
-  for (let i = 0; i < n; i++) {
-    if (wave[i] !== '.' && isVectorCell(wave[i] as CellState)) {
-      dataLabel[i] = data?.[di] ?? ''
-      di++
-    }
-  }
+  const dataLabel = getDataMap(wave, data)
 
   const fills:   ReactNode[] = []
   const strokes: ReactNode[] = []
@@ -302,10 +294,10 @@ export default function WaveformRenderer({ wave, data, isDark, onCellClick, onCe
     <svg width={totalW} height={WAVE_H} style={{ display: 'block', overflow: 'visible' }}>
       <defs>
         {/* Diagonal hatch pattern matching WaveDrom's X state — lines every 5 units */}
-        <pattern id="xhatch-d" x="0" y="0" width="7" height="7" patternUnits="userSpaceOnUse">
+        <pattern id={`xhatch-d${uid}`} x="0" y="0" width="7" height="7" patternUnits="userSpaceOnUse">
           <line x1="0" y1="7" x2="7" y2="0" stroke="#f87171" strokeWidth="0.9" strokeOpacity="0.55" />
         </pattern>
-        <pattern id="xhatch-l" x="0" y="0" width="7" height="7" patternUnits="userSpaceOnUse">
+        <pattern id={`xhatch-l${uid}`} x="0" y="0" width="7" height="7" patternUnits="userSpaceOnUse">
           <line x1="0" y1="7" x2="7" y2="0" stroke={xStroke} strokeWidth="0.9" strokeOpacity="0.45" />
         </pattern>
       </defs>
