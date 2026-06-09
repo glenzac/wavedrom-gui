@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import type { WaveJSON } from './types'
+import type { CellState } from './types'
 import { serialize } from './utils/serialize'
 import { parse } from './utils/parse'
+import { getDataMap, rebuildData } from './utils/waveHelpers'
 import Header from './components/Header'
 import SignalEditor from './components/SignalEditor'
 import CodeEditor from './components/CodeEditor'
@@ -49,7 +51,7 @@ export default function App() {
   const [svgContent, setSvgContent] = useState('')
   const [isDark, setIsDark] = useState(true)
 
-  const isGuiEdit = useRef(false)
+  const pendingGuiCode = useRef<string | null>(null)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Apply dark class to <html> for Tailwind dark mode
@@ -70,14 +72,17 @@ export default function App() {
   const handleGuiChange = useCallback((updated: WaveJSON) => {
     setWaveJson(updated)
     setCodeError(null)
-    isGuiEdit.current = true
-    setCodeString(serialize(updated))
-    requestAnimationFrame(() => { isGuiEdit.current = false })
+    const serialized = serialize(updated)
+    pendingGuiCode.current = serialized
+    setCodeString(serialized)
   }, [])
 
   const handleCodeChange = useCallback((value: string) => {
     setCodeString(value)
-    if (isGuiEdit.current) return
+    if (pendingGuiCode.current !== null && value === pendingGuiCode.current) {
+      pendingGuiCode.current = null
+      return
+    }
     if (debounceTimer.current) clearTimeout(debounceTimer.current)
     debounceTimer.current = setTimeout(() => {
       const { result, error } = parse(value)
@@ -91,13 +96,18 @@ export default function App() {
     }, 300)
   }, [])
 
+  const handleCycleCountOnly = useCallback((n: number) => setCycleCount(n), [])
+
   function handleCycleCountChange(n: number) {
     setCycleCount(n)
     const newSignals = waveJson.signal.map((sig) => {
       const w = sig.wave
       if (w.length === n) return sig
-      if (w.length < n) return { ...sig, wave: w + '0'.repeat(n - w.length) }
-      return { ...sig, wave: w.slice(0, n) }
+      if (w.length < n) return { ...sig, wave: w + '.'.repeat(n - w.length) }
+      const truncWave = w.slice(0, n)
+      const dm = getDataMap(w, sig.data)
+      const newData = rebuildData(truncWave.split('') as CellState[], dm)
+      return { ...sig, wave: truncWave, data: newData.length ? newData : undefined }
     })
     handleGuiChange({ ...waveJson, signal: newSignals })
   }
@@ -120,6 +130,7 @@ export default function App() {
             cycleCount={cycleCount}
             isDark={isDark}
             onCycleCountChange={handleCycleCountChange}
+            onSetCycleCount={handleCycleCountOnly}
             onChange={handleGuiChange}
           />
         }

@@ -1,7 +1,7 @@
 import type { CellState } from '../types'
 
 const REGULAR_CYCLE: CellState[] = ['0', '1', 'x', 'z', '=', '.']
-export const CLOCK_CYCLE: CellState[] = ['p', 'P', 'n', 'N']
+export const CLOCK_CYCLE: CellState[] = ['p', 'P', 'n', 'N', 'h', 'l']
 
 export function isClockState(s: string): boolean {
   return s === 'p' || s === 'P' || s === 'n' || s === 'N'
@@ -19,7 +19,7 @@ export function resolveStates(wave: string): CellState[] {
 }
 
 // Wave chars 2-9 are colored variants of the bus/vector state
-export const VECTOR_CHARS: CellState[] = ['=', '3', '4', '5', '6', '7', '8', '9']
+export const VECTOR_CHARS: CellState[] = ['=', '2', '3', '4', '5', '6', '7', '8', '9']
 
 // Actual fill colors used by wavedrom's default skin for each vector char.
 // vvv-2 (=,2) → s7=#fff  vvv-3 → s8=#ffffb4  vvv-4 → s9=#ffe0b9 …

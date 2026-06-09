@@ -20,6 +20,7 @@ interface Props {
   cycleCount: number
   isDark: boolean
   onCycleCountChange: (n: number) => void
+  onSetCycleCount: (n: number) => void
   onChange: (updated: WaveJSON) => void
 }
 
@@ -68,22 +69,23 @@ function insertCycleAt(signal: Signal, idx: number): Signal {
   const chars    = signal.wave.split('')
   const dataMap  = getDataMap(signal.wave, signal.data)
 
-  // Copy the resolved value at idx
-  const insertChar: CellState = resolved[idx]
-  chars.splice(idx, 0, insertChar)
+  // Clamp to valid range so "insert after last cell" doesn't splice undefined
+  const safeIdx    = Math.min(idx, signal.wave.length)
+  const insertChar: CellState = resolved[Math.min(safeIdx, resolved.length - 1)] ?? '0'
+  chars.splice(safeIdx, 0, insertChar)
 
   // For bus inserts: also insert the data label
   const newCells = chars as CellState[]
   const newDataMap: Record<number, string> = {}
-  // Re-map data labels: positions after idx shift by 1
+  // Re-map data labels: positions at or after safeIdx shift by 1
   for (const [pos, val] of Object.entries(dataMap)) {
     const p = Number(pos)
-    if (p >= idx) newDataMap[p + 1] = val
-    else          newDataMap[p]     = val
+    if (p >= safeIdx) newDataMap[p + 1] = val
+    else              newDataMap[p]     = val
   }
   // Add label for new cell if it's a bus type
   if (isVectorCell(insertChar)) {
-    newDataMap[idx] = dataMap[idx] ?? dataMap[idx - 1] ?? ''
+    newDataMap[safeIdx] = dataMap[safeIdx] ?? dataMap[safeIdx - 1] ?? ''
   }
 
   const newData = rebuildData(newCells, newDataMap)
@@ -125,7 +127,7 @@ function fillAll(signal: Signal, value: CellState): Signal {
 
 // ── Main component ─────────────────────────────────────────────
 export default function SignalEditor({
-  waveJson, cycleCount, isDark, onCycleCountChange, onChange,
+  waveJson, cycleCount, isDark, onCycleCountChange, onSetCycleCount, onChange,
 }: Props) {
   const [ctx, setCtx] = useState<CtxState | null>(null)
 
@@ -238,15 +240,15 @@ export default function SignalEditor({
       {
         label: 'Insert cycle before',
         onClick: () => {
-          onCycleCountChange(cycleCount + 1)
-          updateSignal(ctx.signalIdx, insertCycleAt(sig, cellIdx))
+          onChange({ ...waveJson, signal: waveJson.signal.map((s) => insertCycleAt(s, cellIdx)) })
+          onSetCycleCount(cycleCount + 1)
         },
       },
       {
         label: 'Insert cycle after',
         onClick: () => {
-          onCycleCountChange(cycleCount + 1)
-          updateSignal(ctx.signalIdx, insertCycleAt(sig, cellIdx + 1))
+          onChange({ ...waveJson, signal: waveJson.signal.map((s) => insertCycleAt(s, cellIdx + 1)) })
+          onSetCycleCount(cycleCount + 1)
         },
       },
       {
@@ -254,8 +256,10 @@ export default function SignalEditor({
         danger: true,
         disabled: sig.wave.length <= 1,
         onClick: () => {
-          onCycleCountChange(Math.max(1, cycleCount - 1))
-          updateSignal(ctx.signalIdx, deleteCycleAt(sig, cellIdx))
+          onChange({ ...waveJson, signal: waveJson.signal.map((s) =>
+            s.wave.length > 1 ? deleteCycleAt(s, Math.min(cellIdx, s.wave.length - 1)) : s
+          )})
+          onSetCycleCount(Math.max(1, cycleCount - 1))
         },
       },
     ]
